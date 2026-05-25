@@ -1,4 +1,4 @@
-// Configuração do Gráfico WaterInBox [cite: 9]
+// Configuração do Gráfico WaterInBox
 const ctx = document.getElementById('graficoConsumo').getContext('2d');
 const graficoConsumo = new Chart(ctx, {
     type: 'line',
@@ -7,8 +7,8 @@ const graficoConsumo = new Chart(ctx, {
         datasets: [{
             label: 'Consumo (L)',
             data: [10, 5, 80, 45, 60, 110, 30],
-            borderColor: '#223bc2', // Cor 5
-            backgroundColor: 'rgba(143, 165, 241, 0.15)', // Cor 1
+            borderColor: '#223bc2',
+            backgroundColor: 'rgba(143, 165, 241, 0.15)',
             borderWidth: 3,
             fill: true,
             tension: 0.4,
@@ -29,6 +29,7 @@ const cliente = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 
 const topicoNivel = 'cps/caixa/nivel';
 const topicoFluxo = 'cps/caixa/fluxo';
+const topicoFluxoEntrada = 'cps/caixa/fluxo_entrada'; 
 const topicoValvula = 'cps/caixa/valvula';
 
 cliente.on('connect', () => {
@@ -37,6 +38,7 @@ cliente.on('connect', () => {
     
     cliente.subscribe(topicoNivel);
     cliente.subscribe(topicoFluxo);
+    cliente.subscribe(topicoFluxoEntrada);
     cliente.subscribe(topicoValvula);
     
     limparLogs();
@@ -52,13 +54,15 @@ cliente.on('message', (topico, mensagem) => {
         
         if(dados < 20) {
             document.getElementById('barra-nivel').style.backgroundColor = '#ef4444';
-            adicionarLog("ALERTA: Nível do reservatório crítico.");
         } else {
             document.getElementById('barra-nivel').style.backgroundColor = '#223bc2';
         }
     } 
     else if (topico === topicoFluxo) {
         document.getElementById('fluxo-saida').innerText = dados;
+    }
+    else if (topico === topicoFluxoEntrada) {
+        document.getElementById('fluxo-entrada').innerText = dados;
     }
     else if (topico === topicoValvula) {
         atualizarBotaoValvula(dados);
