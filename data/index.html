@@ -3,103 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WaterInBox | Monitoração Ativa</title>
-    <link rel="stylesheet" href="style.css">
+    <title>WaterInBox - Monitoramento Ativo</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="estrutura">
-        <header class="barra-topo">
-            <div>
-                <h1 class="titulo-marca">WaterInBox</h1>
-                <p class="subtitulo">Monitoramento e Prevenção de Vazamentos</p>
+    <div class="container">
+        <nav class="menu-lateral">
+            <div class="logo">
+                <div class="icone-logo">
+                    <i data-lucide="droplets"></i>
+                </div>
+                <h1>WaterInBox</h1>
             </div>
-            <div class="cartao-status">
-                <span id="ponto-mqtt" class="ponto alerta"></span>
-                <span id="status-conexao">Aguardando Telemetria</span>
+            
+            <div class="links-menu">
+                <a href="#" class="item-menu ativo" onclick="trocarAba('dashboard')" id="menu-dash">
+                    <i data-lucide="layout-dashboard" class="icone"></i>
+                    Dashboard
+                </a>
+                <a href="#" class="item-menu" onclick="trocarAba('performance')" id="menu-perf">
+                    <i data-lucide="activity" class="icone"></i>
+                    Performance
+                </a>
+                <a href="#" class="item-menu">
+                    <i data-lucide="info" class="icone"></i>
+                    Sobre
+                </a>
+                <a href="https://github.com/chaoticdevs-pucpr/WaterInBox.esp32" target="_blank" class="item-menu">
+                    <i data-lucide="github" class="icone"></i>
+                    Repositório
+                </a>
             </div>
-        </header>
+        </nav>
 
-        <main class="grade-painel">
-            <section class="painel">
-                <div class="cabecalho-painel">
-                    <h2>Sensores em Tempo Real</h2>
+        <main class="conteudo-principal">
+            
+            <header class="cabecalho">
+                <div class="status-sistema">
+                    <div id="ponto-mqtt" class="ponto inativo"></div>
+                    <span id="status-conexao">Aguardando Conexão...</span>
                 </div>
-                <div class="grade-sensores">
-                    <div class="caixa-dados">
-                        <span class="rotulo-dados">NÍVEL DO RESERVATÓRIO</span>
-                        <div class="grupo-valor">
-                            <span id="nivel-agua" class="valor-dados">--</span>
-                            <span class="unidade-dados">%</span>
-                        </div>
-                        <div class="barra-progresso">
-                            <div id="barra-nivel" class="preenchimento-progresso" style="width: 0%;"></div>
+<div class="controles-rapidos">
+    <a href="/logs.txt" download class="botao-secundario" style="color: #4318ff; border: 1px solid #4318ff; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+        <i data-lucide="download" class="icone-botao"></i> Baixar Logs
+    </a>
+
+    <button onclick="resetarWiFi()" class="botao-secundario" style="color: #ee5d50; border: 1px solid #ee5d50;">
+        <i data-lucide="wifi-off" class="icone-botao"></i> Reset Wi-Fi
+    </button>
+    
+    <div class="grupo-input">
+        <input type="number" id="tempo-limite" placeholder="Limite (min)">
+        <button onclick="salvarLimite()" class="botao-secundario">Salvar</button>
+    </div>
+    <button id="botao-valvula" class="botao-principal estado-aberto" onclick="alternarValvula()">
+        <i data-lucide="power" class="icone-botao"></i>
+        ESTADO: ABERTA (FECHAR)
+    </button>
+</div>
+            </header>
+
+            <div id="aba-dashboard" style="display: block;">
+                
+                <div class="grade-kpi" style="margin-bottom: 30px;">
+                    <div class="kpi-card">
+                        <span class="kpi-titulo">Nível Atual</span>
+                        <div class="kpi-valor"><span id="nivel-agua">0</span><span class="unidade">%</span></div>
+                        <div class="barra-progresso"><div id="barra-nivel" style="width: 0%; background: #00b5e2;"></div></div>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-titulo">Entrada (L/min)</span>
+                        <div class="kpi-valor"><span id="fluxo-entrada">0.0</span><span class="unidade"> L/min</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-titulo">Saída (L/min)</span>
+                        <div class="kpi-valor"><span id="fluxo-saida">0.0</span><span class="unidade"> L/min</span></div>
+                    </div>
+                </div>
+                <div class="cabecalho-secao">
+                    <div class="titulo-com-badge">
+                        <h2>Monitoramento Volumétrico</h2>
+                        <span id="badge-live" class="badge-live piscar">Live</span>
+                    </div>
+                    <div class="filtros-tempo">
+                        <button class="btn-filtro ativo" onclick="mudarPeriodo('live')">Tempo Real</button>
+                        <button class="btn-filtro" onclick="mudarPeriodo('dia')">Dia (Real)</button>
+                        <button class="btn-filtro" onclick="mudarPeriodo('semana')">Semana</button>
+                        <button class="btn-filtro" onclick="mudarPeriodo('mes')">Mês</button>
+                    </div>
+                </div>
+
+                <div class="cartao-grafico grafico-destaque">
+                    <div class="grafico-container nivel-container">
+                        <canvas id="graficoNivel"></canvas>
+                    </div>
+                </div>
+
+                <div class="grade-graficos">
+                    <div class="cartao-grafico">
+                        <div class="grafico-container">
+                            <canvas id="graficoEntrada"></canvas>
                         </div>
                     </div>
-                    
-                    <div class="caixa-dados">
-                        <span class="rotulo-dados">FLUXO DE ENTRADA</span>
-                        <div class="grupo-valor">
-                            <span id="fluxo-entrada" class="valor-dados">--</span>
-                            <span class="unidade-dados">L/min</span>
-                        </div>
-                    </div>
-
-                    <div class="caixa-dados">
-                        <span class="rotulo-dados">FLUXO DE SAÍDA</span>
-                        <div class="grupo-valor">
-                            <span id="fluxo-saida" class="valor-dados">--</span>
-                            <span class="unidade-dados">L/min</span>
+                    <div class="cartao-grafico">
+                        <div class="grafico-container">
+                            <canvas id="graficoSaida"></canvas>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <section class="painel painel-atuacao">
-                <div class="cabecalho-painel">
-                    <h2>Controle de Atuação Física</h2>
+                <div class="painel-tabela">
+                    <div class="cabecalho-painel">
+                        <h3>Atividades Recentes</h3>
+                    </div>
+                    <table class="tabela-eventos">
+                        <tbody id="lista-logs">
+                        </tbody>
+                    </table>
                 </div>
-                <div class="conteudo-atuacao">
-                    <p class="texto-informativo">Controle manual da válvula solenoide na entrada da caixa.</p>
-                    <button id="botao-valvula" class="botao-principal estado-aberto" onclick="alternarValvula()">
-                        ESTADO: ABERTA (CLIQUE PARA FECHAR)
-                    </button>
-                </div>
-            </section>
+            </div>
 
-            <section class="painel painel-grafico">
-                <div class="cabecalho-painel">
-                    <h2>Integração Volumétrica Local</h2>
+            <div id="aba-performance" style="display: none;">
+                <div class="boas-vindas" style="margin-bottom: 20px;">
+                    <h2>Diagnóstico do Microcontrolador (ESP32)</h2>
+                    <p class="subtitulo">Métricas de hardware, memória e RTOS exigidas no TDE.</p>
                 </div>
-                <div class="container-grafico">
-                    <canvas id="graficoConsumo"></canvas>
-                </div>
-            </section>
 
-            <section class="painel painel-eventos">
-                <div class="cabecalho-painel">
-                    <h2>Registro de Eventos</h2>
+                <div class="grade-kpi">
+                    <div class="kpi-card">
+                        <div class="kpi-header"><span class="kpi-titulo">Uso de Memória RAM (Heap)</span></div>
+                        <div class="kpi-valor"><span id="mem-heap">0</span><span class="unidade"> KB Livres</span></div>
+                        <div class="barra-progresso"><div id="barra-heap" style="width: 0%; background: #4318ff;"></div></div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header"><span class="kpi-titulo">Armazenamento (LittleFS)</span></div>
+                        <div class="kpi-valor"><span id="mem-flash">0</span><span class="unidade"> Bytes Usados</span></div>
+                        <div class="barra-progresso"><div id="barra-flash" style="width: 0%; background: #ffb547;"></div></div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header"><span class="kpi-titulo">Frequência CPU & Wi-Fi</span></div>
+                        <div class="kpi-valor"><span id="cpu-freq">0</span><span class="unidade"> MHz</span></div>
+                        <p class="kpi-desc">Sinal Wi-Fi (RSSI): <strong id="wifi-rssi">0 dBm</strong></p>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header"><span class="kpi-titulo">FreeRTOS Main Task</span></div>
+                        <div class="kpi-valor"><span id="task-stack">0</span><span class="unidade"> Bytes</span></div>
+                        <p class="kpi-desc">Stack High Water Mark (Margem livre)</p>
+                    </div>
                 </div>
-                <div class="container-tabela">
+
+                <div class="painel-tabela" style="margin-top: 20px;">
+                    <div class="cabecalho-painel">
+                        <h3>Tempo de Execução de Funções (Latência em Microssegundos - µs)</h3>
+                    </div>
                     <table class="tabela-eventos">
                         <thead>
                             <tr>
-                                <th>HORA</th>
-                                <th>EVENTO / ANOMALIA</th>
+                                <th style="padding: 15px; text-align: left;">Função (C++)</th>
+                                <th style="padding: 15px; text-align: left;">Descrição da Tarefa</th>
+                                <th style="padding: 15px; text-align: right;">Tempo (µs)</th>
                             </tr>
                         </thead>
-                        <tbody id="lista-logs">
+                        <tbody>
                             <tr>
-                                <td class="celula-tempo">--:--:--</td>
-                                <td>Inicializando sistema WaterInBox...</td>
+                                <td style="padding: 15px;"><code>lerNivelAgua()</code></td>
+                                <td>Aferição do ultrassom e limpeza de buffer.</td>
+                                <td id="t-sensor" style="text-align: right; font-weight: bold;">0 µs</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 15px;"><code>salvarHistoricoNoFlash()</code></td>
+                                <td>Manipulação JSON e escrita não volátil.</td>
+                                <td id="t-flash" style="text-align: right; font-weight: bold;">0 µs</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 15px;"><code>callbackMQTT()</code></td>
+                                <td>Leitura de payload de rede e atuação do relé.</td>
+                                <td id="t-mqtt" style="text-align: right; font-weight: bold;">0 µs</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 15px;"><code>[Loop de Telemetria]</code></td>
+                                <td>Contagem de pulso, cálculo de vazão e publish MQTT.</td>
+                                <td id="t-loop" style="text-align: right; font-weight: bold;">0 µs</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 15px;"><code>reconectarMQTT_NaoBloqueante()</code></td>
+                                <td>Tentativa de conexão sem travar o processador.</td>
+                                <td id="t-recon" style="text-align: right; font-weight: bold;">0 µs</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </section>
+            </div>
+
         </main>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>

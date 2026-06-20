@@ -1,138 +1,354 @@
-:root {
-    --fundo-app: #f8fafc;
-    --fundo-painel: #ffffff;
-    --cor-borda: #e2e8f0;
-    --texto-principal: #1e293b;
-    --texto-suave: #64748b;
-    
-    /* Gradiente WaterInBox */
-    --marca-1: #8fa5f1;
-    --marca-2: #6f8beb;
-    --marca-3: #6081f6;
-    --marca-4: #2b4cbd;
-    --marca-5: #223bc2;
-
-    --alerta-vermelho: #ef4444;
-    --status-verde: #10b981;
-    
-    --fonte-padrao: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
-    --fonte-dados: ui-monospace, SFMono-Regular, "Courier New", monospace;
+/* =========================================
+   RESET E CONFIGURAÇÕES GLOBAIS
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'DM Sans', sans-serif;
 }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    background-color: var(--fundo-app);
-    color: var(--texto-principal);
-    font-family: var(--fonte-padrao);
-    padding: 24px;
+    background-color: #f4f7fe;
+    color: #2b3674;
+    overflow: hidden; /* Evita scroll duplo */
 }
 
-.estrutura { max-width: 1000px; margin: 0 auto; }
-
-.barra-topo {
+.container {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 32px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--cor-borda);
+    height: 100vh;
+    width: 100vw;
 }
 
-.titulo-marca { 
-    font-size: 2rem; 
-    font-weight: 800; 
-    background: linear-gradient(to right, var(--marca-1), var(--marca-2), var(--marca-3), var(--marca-4), var(--marca-5));
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+/* =========================================
+   MENU LATERAL
+   ======================================== */
+.menu-lateral {
+    width: 260px;
+    background: #ffffff;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+    z-index: 10;
 }
 
-.subtitulo { color: var(--texto-suave); font-size: 0.9rem; font-weight: 500; }
-
-.cartao-status {
+.logo {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--texto-suave);
-    background: var(--fundo-painel);
-    padding: 6px 12px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 99px;
+    gap: 12px;
+    color: #2b3674;
+    margin-bottom: 40px;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
 }
 
-.ponto { width: 8px; height: 8px; border-radius: 50%; }
-.ponto.ativo { background-color: var(--status-verde); box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
-.ponto.alerta { background-color: #f59e0b; }
+.logo h1 {
+    font-size: 24px;
+    background: linear-gradient(90deg, #4318ff, #00b5e2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    margin: 0;
+}
 
-.grade-painel {
+.icone-logo {
+    background: #4318ff;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 12px;
+    display: flex;
+}
+
+.links-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-menu {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    color: #a3aed1;
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.item-menu.ativo, .item-menu:hover {
+    background: #4318ff;
+    color: #ffffff;
+}
+
+/* =========================================
+   CONTEÚDO PRINCIPAL E CABEÇALHO
+   ======================================== */
+.conteudo-principal {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 15px 30px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.status-sistema {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    color: #a3aed1;
+}
+
+.ponto { width: 12px; height: 12px; border-radius: 50%; }
+.ponto.inativo { background: #ee5d50; }
+.ponto.ativo { background: #01b574; box-shadow: 0 0 10px rgba(1, 181, 116, 0.5); }
+
+.controles-rapidos {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.grupo-input { display: flex; gap: 10px; }
+
+input[type="number"] {
+    padding: 10px 15px;
+    border: 1px solid #eef2f8;
+    border-radius: 10px;
+    outline: none;
+    font-family: inherit;
+    font-weight: 500;
+    color: #2b3674;
+}
+
+.botao-secundario {
+    padding: 10px 20px;
+    background: #eef2f8;
+    color: #2b3674;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.botao-secundario:hover { background: #e2e8f0; }
+
+.botao-principal {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.estado-aberto { background: #01b574; }
+.estado-perigo { background: #ee5d50; }
+
+/* =========================================
+   DASHBOARD - GRÁFICOS E FILTROS
+   ======================================== */
+.cabecalho-secao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.titulo-com-badge {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.badge-live {
+    background: #ffebee;
+    color: #ee5d50;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.piscar { animation: blink 2s infinite; }
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+.badge-live.inativo { background: #eef2f8; color: #a3aed1; }
+
+.filtros-tempo {
+    display: flex;
+    gap: 10px;
+    background: #ffffff;
+    padding: 5px;
+    border-radius: 15px;
+}
+
+.btn-filtro {
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    color: #a3aed1;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-filtro.ativo {
+    background: #f4f7fe;
+    color: #4318ff;
+}
+
+/* Os containers com a ALTURA FIXA para os gráficos não colapsarem */
+.cartao-grafico {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    margin-bottom: 20px;
+}
+
+.grafico-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+.nivel-container { height: 350px; }
+
+.grade-graficos {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
 
-.painel {
-    background: var(--fundo-painel);
-    border: 1px solid var(--cor-borda);
-    border-top: 4px solid var(--marca-1);
-    border-radius: 8px;
-    padding: 20px;
+/* =========================================
+   TABELAS (LOGS E PERFORMANCE)
+   ======================================== */
+.painel-tabela {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
 }
 
-.painel-grafico, .painel-eventos { grid-column: 1 / -1; }
-
-.cabecalho-painel h2 {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    color: var(--texto-suave);
+.cabecalho-painel h3 {
+    color: #2b3674;
     margin-bottom: 20px;
 }
 
-.grade-sensores { display: flex; flex-direction: column; gap: 24px; }
-
-.rotulo-dados { font-size: 0.75rem; font-weight: 600; color: var(--texto-suave); display: block; }
-
-.valor-dados {
-    font-family: var(--fonte-dados);
-    font-size: 2.8rem;
-    font-weight: 600;
-    color: var(--marca-5); 
+.tabela-eventos {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.unidade-dados { color: var(--texto-suave); font-size: 1.1rem; }
+.tabela-eventos th {
+    color: #a3aed1;
+    border-bottom: 2px solid #eef2f8;
+    padding-bottom: 15px;
+}
+
+.tabela-eventos td {
+    padding: 15px 0;
+    border-bottom: 1px solid #eef2f8;
+    color: #a3aed1;
+    font-weight: 500;
+}
+
+.celula-tempo {
+    width: 100px;
+    color: #2b3674 !important;
+    font-weight: 700 !important;
+}
+
+/* =========================================
+   ABA PERFORMANCE - CARDS KPI
+   ======================================== */
+.grade-kpi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.kpi-card {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+}
+
+.kpi-titulo {
+    color: #a3aed1;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.kpi-valor {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2b3674;
+    margin: 15px 0;
+}
+
+.kpi-valor .unidade {
+    font-size: 14px;
+    color: #a3aed1;
+    margin-left: 5px;
+}
 
 .barra-progresso {
     width: 100%;
+    background: #eef2f8;
     height: 8px;
-    background: var(--cor-borda);
-    border-radius: 4px;
-    margin-top: 8px;
+    border-radius: 10px;
     overflow: hidden;
+    margin-top: auto;
 }
 
-.preenchimento-progresso {
+.barra-progresso div {
     height: 100%;
-    background: var(--marca-5);
-    transition: width 0.5s ease;
+    border-radius: 10px;
+    transition: width 1s ease-in-out;
 }
 
-.botao-principal {
-    width: 100%;
-    padding: 14px;
-    border-radius: 6px;
-    font-weight: 700;
-    color: white;
-    cursor: pointer;
-    border: none;
-    transition: 0.2s;
+.kpi-desc {
+    font-size: 12px;
+    color: #a3aed1;
+    margin-top: 15px;
+    margin-bottom: 0;
 }
 
-.botao-principal.estado-aberto { background: var(--status-verde); }
-.botao-principal.estado-perigo { background: var(--alerta-vermelho); }
+/* Transição suave de abas */
+#aba-dashboard, #aba-performance {
+    animation: fadeIn 0.4s ease-in-out;
+}
 
-.tabela-eventos { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-.tabela-eventos th { color: var(--texto-suave); font-weight: 600; padding-bottom: 12px; border-bottom: 1px solid var(--cor-borda); text-align: left; }
-.tabela-eventos td { padding: 12px 0; border-bottom: 1px solid var(--cor-borda); }
-.celula-tempo { font-family: var(--fonte-dados); color: var(--marca-5); width: 100px; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
