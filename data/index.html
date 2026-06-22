@@ -7,7 +7,6 @@
     
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
     
@@ -24,21 +23,20 @@
             </div>
             
             <div class="links-menu">
-                <a href="#" class="item-menu ativo" onclick="trocarAba('dashboard')" id="menu-dash">
-                    <i data-lucide="layout-dashboard" class="icone"></i>
-                    Dashboard
+                <a href="#" class="item-menu ativo" onclick="trocarAba('dashboard')" id="menu-dashboard">
+                    <i data-lucide="layout-dashboard" class="icone"></i> Dashboard
                 </a>
-                <a href="#" class="item-menu" onclick="trocarAba('performance')" id="menu-perf">
-                    <i data-lucide="activity" class="icone"></i>
-                    Performance
+                <a href="#" class="item-menu" onclick="trocarAba('performance')" id="menu-performance">
+                    <i data-lucide="activity" class="icone"></i> Performance
                 </a>
-                <a href="#" class="item-menu">
-                    <i data-lucide="info" class="icone"></i>
-                    Sobre
+                <a href="#" class="item-menu" onclick="trocarAba('configuracoes')" id="menu-configuracoes">
+                    <i data-lucide="settings" class="icone"></i> Configurações
+                </a>
+                <a href="#" class="item-menu" onclick="trocarAba('sobre')" id="menu-sobre">
+                    <i data-lucide="info" class="icone"></i> Sobre
                 </a>
                 <a href="https://github.com/chaoticdevs-pucpr/WaterInBox.esp32" target="_blank" class="item-menu">
-                    <i data-lucide="github" class="icone"></i>
-                    Repositório
+                    <i data-lucide="github" class="icone"></i> Repositório
                 </a>
             </div>
         </nav>
@@ -50,28 +48,18 @@
                     <div id="ponto-mqtt" class="ponto inativo"></div>
                     <span id="status-conexao">Aguardando Conexão...</span>
                 </div>
-<div class="controles-rapidos">
-    <a href="/logs.txt" download class="botao-secundario" style="color: #4318ff; border: 1px solid #4318ff; text-decoration: none; display: flex; align-items: center; justify-content: center;">
-        <i data-lucide="download" class="icone-botao"></i> Baixar Logs
-    </a>
-
-    <button onclick="resetarWiFi()" class="botao-secundario" style="color: #ee5d50; border: 1px solid #ee5d50;">
-        <i data-lucide="wifi-off" class="icone-botao"></i> Reset Wi-Fi
-    </button>
-    
-    <div class="grupo-input">
-        <input type="number" id="tempo-limite" placeholder="Limite (min)">
-        <button onclick="salvarLimite()" class="botao-secundario">Salvar</button>
-    </div>
-    <button id="botao-valvula" class="botao-principal estado-aberto" onclick="alternarValvula()">
-        <i data-lucide="power" class="icone-botao"></i>
-        ESTADO: ABERTA (FECHAR)
-    </button>
-</div>
+                <div class="controles-rapidos">
+                    <div class="grupo-input">
+                        <input type="number" id="tempo-limite" placeholder="Limite (min)">
+                        <button onclick="salvarLimite()" class="botao-secundario">Salvar</button>
+                    </div>
+                    <button id="botao-valvula" class="botao-principal estado-perigo" onclick="alternarValvula()">
+                        <i data-lucide="power" class="icone-botao"></i> ESTADO: FECHADA (CLIQUE PARA ABRIR)
+                    </button>       
+                </div>
             </header>
 
             <div id="aba-dashboard" style="display: block;">
-                
                 <div class="grade-kpi" style="margin-bottom: 30px;">
                     <div class="kpi-card">
                         <span class="kpi-titulo">Nível Atual</span>
@@ -142,19 +130,16 @@
                         <div class="kpi-valor"><span id="mem-heap">0</span><span class="unidade"> KB Livres</span></div>
                         <div class="barra-progresso"><div id="barra-heap" style="width: 0%; background: #4318ff;"></div></div>
                     </div>
-
                     <div class="kpi-card">
                         <div class="kpi-header"><span class="kpi-titulo">Armazenamento (LittleFS)</span></div>
                         <div class="kpi-valor"><span id="mem-flash">0</span><span class="unidade"> Bytes Usados</span></div>
                         <div class="barra-progresso"><div id="barra-flash" style="width: 0%; background: #ffb547;"></div></div>
                     </div>
-
                     <div class="kpi-card">
                         <div class="kpi-header"><span class="kpi-titulo">Frequência CPU & Wi-Fi</span></div>
                         <div class="kpi-valor"><span id="cpu-freq">0</span><span class="unidade"> MHz</span></div>
                         <p class="kpi-desc">Sinal Wi-Fi (RSSI): <strong id="wifi-rssi">0 dBm</strong></p>
                     </div>
-
                     <div class="kpi-card">
                         <div class="kpi-header"><span class="kpi-titulo">FreeRTOS Main Task</span></div>
                         <div class="kpi-valor"><span id="task-stack">0</span><span class="unidade"> Bytes</span></div>
@@ -202,6 +187,81 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div id="aba-configuracoes" style="display: none;">
+                <div class="boas-vindas" style="margin-bottom: 30px;">
+                    <h2>Configurações do Sistema</h2>
+                    <p class="subtitulo">Gerenciamento de rede, logs e persistência de dados do WaterInBox.</p>
+                </div>
+                
+                <div class="grade-graficos">
+                    <div class="cartao-grafico" style="height: auto; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <i data-lucide="save" style="color: #01b574;"></i>
+                            <h3 style="color: #2b3674;">Forçar Persistência</h3>
+                        </div>
+                        <p style="color: #a3aed1; margin-bottom: 20px; font-size: 14px; flex-grow: 1;">Grave os dados atuais de volume e fluxo na memória LittleFS instantaneamente, sem aguardar o ciclo automático de 1 hora.</p>
+                        <button onclick="forcarSalvamentoFlash()" class="botao-principal" style="background: #01b574; width: 100%; justify-content: center;">
+                            Salvar Dados na Flash Agora
+                        </button>
+                    </div>
+
+                    <div class="cartao-grafico" style="height: auto; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <i data-lucide="file-text" style="color: #4318ff;"></i>
+                            <h3 style="color: #2b3674;">Auditoria e Diagnóstico</h3>
+                        </div>
+                        <p style="color: #a3aed1; margin-bottom: 20px; font-size: 14px; flex-grow: 1;">Exporte o relatório completo de eventos, estado operacional e saúde da memória do Sistema Ciberfísico.</p>
+                        <a href="/logs.txt" download class="botao-secundario" style="color: #ffffff; background: #4318ff; text-decoration: none; display: flex; align-items: center; justify-content: center; width: 100%; padding: 12px 25px; border-radius: 12px;">
+                            Baixar Logs do Sistema (.txt)
+                        </a>
+                    </div>
+
+                    <div class="cartao-grafico" style="height: auto; border: 1px solid #ee5d50; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <i data-lucide="alert-triangle" style="color: #ee5d50;"></i>
+                            <h3 style="color: #ee5d50;">Alterar Wifi</h3>
+                        </div>
+                        <p style="color: #a3aed1; margin-bottom: 20px; font-size: 14px; flex-grow: 1;">Apague as credenciais de rede atuais. O ESP32 será reiniciado em modo Access Point para nova configuração.</p>
+                        <button onclick="resetarWiFi()" class="botao-secundario" style="color: #ffffff; background: #ee5d50; width: 100%; justify-content: center; padding: 12px 25px; border-radius: 12px;">
+                            Resetar Credenciais Wi-Fi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="aba-sobre" style="display: none;">
+                <div class="boas-vindas" style="margin-bottom: 30px;">
+                    <h2>Sobre o Projeto WaterInBox</h2>
+                    <p class="subtitulo">Monitoramento Ativo e Inteligente de Caixas D'Água</p>
+                </div>
+                
+                <div class="painel-tabela" style="line-height: 1.8; color: #2b3674; max-width: 800px;">
+                    <p><strong>Instituição:</strong> Pontifícia Universidade Católica do Paraná (PUCPR)</p>
+                    <p><strong>Curso:</strong> Engenharia de Software</p>
+                    <p><strong>Disciplina:</strong> Performance em Sistemas Ciberfísicos (RA 3)</p>
+                    <p><strong>Professor Orientador:</strong> Fabio Garcez Bettio</p>
+                    <p><strong>Semestre:</strong> 2026/1</p>
+                    
+                    <hr style="border: 0; border-top: 1px solid #eef2f8; margin: 20px 0;">
+                    
+                    <h3 style="margin-bottom: 10px;">Equipe de Desenvolvimento:</h3>
+                    <ul style="list-style-position: inside; color: #a3aed1; margin-bottom: 20px;">
+                        <li>Daniel de Castro Felix</li>
+                        <li>Gabriel Teodoro</li>
+                        <li>Gianluca Capote</li>
+                        <li>Mateus Canatto</li>
+                        <li>Murilo Caxambu Monteiro</li>
+                    </ul>
+                    
+                
+                    <div style="margin-top: 25px;">
+                        <a href="https://github.com/chaoticdevs-pucpr/WaterInBox.esp32" target="_blank" class="botao-principal" style="display: inline-flex; background: #2b3674; text-decoration: none;">
+                            <i data-lucide="github" class="icone-botao"></i> Acessar Repositório no GitHub
+                        </a>
+                    </div>
                 </div>
             </div>
 

@@ -343,8 +343,8 @@ input[type="number"] {
     margin-bottom: 0;
 }
 
-/* Transição suave de abas */
-#aba-dashboard, #aba-performance {
+/* Transição suave de abas (Atualizado para incluir as novas abas) */
+#aba-dashboard, #aba-performance, #aba-configuracoes, #aba-sobre {
     animation: fadeIn 0.4s ease-in-out;
 }
 

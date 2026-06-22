@@ -46,30 +46,28 @@ if (typeof Chart !== 'undefined') {
 }
 
 // ==========================================
-// ABAS E PERFORMANCE
+// ABAS E NAVEGAÇÃO
 // ==========================================
 window.trocarAba = function(abaDesejada) {
-    const abaDash = document.getElementById('aba-dashboard');
-    const menuDash = document.getElementById('menu-dash');
-    const abaPerf = document.getElementById('aba-performance');
-    const menuPerf = document.getElementById('menu-perf');
+    const abas = ['dashboard', 'performance', 'configuracoes', 'sobre'];
+    
+    abas.forEach(id => {
+        const abaElement = document.getElementById('aba-' + id);
+        const menuElement = document.getElementById('menu-' + id);
+        
+        if (abaElement) abaElement.style.display = (id === abaDesejada) ? 'block' : 'none';
+        
+        if (menuElement) {
+            if (id === abaDesejada) menuElement.classList.add('ativo');
+            else menuElement.classList.remove('ativo');
+        }
+    });
 
-    // Esconder tudo primeiro
-    if(abaDash) abaDash.style.display = 'none';
-    if(menuDash) menuDash.classList.remove('ativo');
-    if(abaPerf) abaPerf.style.display = 'none';
-    if(menuPerf) menuPerf.classList.remove('ativo');
-
-    // Mostrar aba solicitada
-    if (abaDesejada === 'dashboard') {
-        if(abaDash) abaDash.style.display = 'block';
-        if(menuDash) menuDash.classList.add('ativo');
-        clearInterval(intervalPerformance);
-    } else if (abaDesejada === 'performance') {
-        if(abaPerf) abaPerf.style.display = 'block';
-        if(menuPerf) menuPerf.classList.add('ativo');
+    if (abaDesejada === 'performance') {
         buscarPerformance(); 
         intervalPerformance = setInterval(buscarPerformance, 3000); 
+    } else {
+        clearInterval(intervalPerformance);
     }
 };
 
@@ -215,7 +213,7 @@ if (typeof mqtt !== 'undefined') {
     }
 }
 
-let valvulaAberta = true;
+let valvulaAberta = false;
 function atualizarBotaoValvula(estado) {
     const botao = document.getElementById('botao-valvula');
     if (!botao) return;
@@ -223,12 +221,12 @@ function atualizarBotaoValvula(estado) {
     if(estado === 'ABERTA' || estado === 'ABRIR') {
         if(!valvulaAberta) adicionarLog("power", "A válvula foi ABERTA.", "#01b574");
         botao.className = 'botao-principal estado-aberto';
-        botao.innerHTML = '<i data-lucide="power" class="icone-botao"></i> ESTADO: ABERTA (FECHAR)';
+        botao.innerHTML = '<i data-lucide="power" class="icone-botao"></i> ESTADO: ABERTA (CLIQUE PARA FECHAR)';
         valvulaAberta = true;
     } else {
         if(valvulaAberta) adicionarLog("power", "A válvula foi FECHADA.", "#ee5d50");
         botao.className = 'botao-principal estado-perigo';
-        botao.innerHTML = '<i data-lucide="power" class="icone-botao"></i> ESTADO: FECHADA (ABRIR)';
+        botao.innerHTML = '<i data-lucide="power" class="icone-botao"></i> ESTADO: FECHADA (CLIQUE PARA ABRIR)';
         valvulaAberta = false;
     }
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -240,15 +238,15 @@ function adicionarLog(iconName, texto, color) {
     const linha = document.createElement('tr');
     const agora = new Date().toLocaleTimeString('pt-BR', { hour12: false });
     
-    // Formatação embutida para evitar problemas se faltar CSS
     linha.innerHTML = `<td style="font-weight:700; color:#2b3674; padding: 10px 15px 10px 0;">${agora}</td><td style="color:#a3aed1; font-weight:500; display:flex; align-items:center;"><i data-lucide="${iconName}" style="color:${color}; width:18px; height:18px; margin-right:8px;"></i> ${texto}</td>`;
     
     tabela.prepend(linha);
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    if(tabela.children.length > 5) tabela.removeChild(tabela.lastChild); // Mantém os 5 mais recentes
+    if(tabela.children.length > 5) tabela.removeChild(tabela.lastChild); 
 }
+
 // ==========================================
-// CONFIGURAÇÃO DO SISTEMA (RESET WI-FI)
+// NOVAS FUNÇÕES: CONFIGURAÇÕES E SALVAMENTO
 // ==========================================
 window.resetarWiFi = function() {
     const confirmacao = confirm("ATENÇÃO: Isto irá apagar a rede Wi-Fi salva e o sistema será reiniciado. Terás de aceder pelo telemóvel à rede 'WaterInBox_Config' para configurar a nova rede. Desejas prosseguir?");
@@ -259,10 +257,32 @@ window.resetarWiFi = function() {
             .then(response => {
                 if (response.ok) {
                     alert("Credenciais apagadas! O dispositivo vai reiniciar. Conecta-te à rede 'WaterInBox_Config'.");
-                    // Desabilita a interface pois o ESP32 vai desligar da rede
                     document.body.style.opacity = "0.5";
                 }
             })
             .catch(err => console.error("Erro ao resetar Wi-Fi:", err));
+    }
+}
+
+window.forcarSalvamentoFlash = function() {
+    const confirmacao = confirm("Você deseja forçar a gravação dos dados atuais na memória Flash (LittleFS) agora?");
+    
+    if (confirmacao) {
+        adicionarLog("save", "Solicitando gravação na memória...", "#01b574");
+        fetch('/salvar_agora', { method: 'POST' })
+            .then(response => {
+                if (response.ok) {
+                    alert("Sucesso! Os dados foram salvos permanentemente no histórico.");
+                    adicionarLog("check-circle", "Dados guardados no LittleFS.", "#01b574");
+                    
+                    // Se estivermos vendo histórico, atualiza os gráficos
+                    if(periodoAtivo !== 'live') {
+                        carregarHistoricoReal();
+                    }
+                } else {
+                    alert("Ops! Ocorreu um erro ao tentar salvar os dados.");
+                }
+            })
+            .catch(err => console.error("Erro na comunicação com o ESP32:", err));
     }
 }
